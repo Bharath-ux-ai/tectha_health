@@ -1,0 +1,113 @@
+@import "tailwindcss";
+@import "@fontsource/montserrat/500.css";
+@import "@fontsource/montserrat/600.css";
+@import "@fontsource/montserrat/700.css";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/noto-sans-tamil/400.css";
+@import "@fontsource/noto-sans-tamil/600.css";
+
+/* TEC THA brand: Graphite Ink and Chrome Silver carry the brand; Signal Violet is for accents and calls to action. */
+@theme {
+  --color-ink: #121214;
+  --color-ink-2: #2a2b30;
+  --color-silver: #e7e9ec;
+  --color-silver-2: #d3d6db;
+  --color-slate: #9ca2ac;
+  --color-muted: #5f6672; /* slate darkened for readable secondary text */
+  --color-paper: #f5f5f7;
+  --color-violet: #9b5de5; /* brand accent: focus rings, active markers, rails */
+  --color-violet-cta: #8a4fd8; /* button fill — passes 4.5:1 with white text */
+  --color-violet-deep: #6f36bd;
+  --color-violet-wash: #f3ecfc;
+  --color-alert: #c42b1c;
+  --color-alert-wash: #fdecea;
+  --color-caution: #9a5800;
+  --color-caution-wash: #fff3dc;
+  --color-ok: #1d7446;
+  --color-ok-wash: #e6f4ec;
+
+  --font-display: "Montserrat", "Noto Sans Tamil", system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", "Noto Sans Tamil", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-card: 14px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "tnum" 1;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-violet);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .panel {
+    background: white;
+    border: 1px solid var(--color-silver);
+    border-radius: var(--radius-card);
+  }
+  .label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-ink-2);
+  }
+  .input {
+    width: 100%;
+    height: 2.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--color-silver-2);
+    background: white;
+    padding: 0 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--color-violet);
+    box-shadow: 0 0 0 3px var(--color-violet-wash);
+  }
+  .input[aria-invalid="true"] {
+    border-color: var(--color-alert);
+  }
+  textarea.input {
+    height: auto;
+    padding: 0.5rem 0.75rem;
+  }
+  .table-head {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    text-align: left;
+  }
+  .num {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+  .panel { border-color: #ccc; }
+}

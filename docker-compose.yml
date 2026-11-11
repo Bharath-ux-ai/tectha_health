@@ -1,0 +1,73 @@
+# TEC THA Follow-Up Engine — production-style stack.
+#   cp .env.example .env   (fill in the secrets)
+#   docker compose up -d --build
+#   docker compose exec api python -m app.cli create-system-admin --email you@tectha.in --name "Your Name"
+# HTTPS: set DOMAIN in .env and start with the proxy profile:  docker compose --profile proxy up -d
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tectha}
+      POSTGRES_USER: ${POSTGRES_USER:-tectha}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tectha} -d ${POSTGRES_DB:-tectha}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-tectha}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-tectha}
+    depends_on:
+      db: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build: ./backend
+    restart: unless-stopped
+    command: ["python", "-m", "app.worker"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-tectha}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-tectha}
+    depends_on:
+      api: { condition: service_healthy }
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        API_ORIGIN: http://api:8000
+    restart: unless-stopped
+    depends_on:
+      api: { condition: service_healthy }
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+
+  proxy:
+    image: caddy:2-alpine
+    profiles: ["proxy"]
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on: [web]
+
+volumes:
+  pgdata:
+  caddy_data:

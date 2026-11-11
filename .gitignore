@@ -1,0 +1,11 @@
+.env
+backend/.venv/
+**/__pycache__/
+.pytest_cache/
+.ruff_cache/
+frontend/node_modules/
+frontend/.next/
+frontend/next-env.d.ts
+frontend/tsconfig.tsbuildinfo
+frontend/e2e/screenshots/
+backups/

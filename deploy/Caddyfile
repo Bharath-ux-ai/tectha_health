@@ -1,0 +1,14 @@
+# Automatic HTTPS (Let's Encrypt) for {$DOMAIN}. The web container proxies /api to the API internally.
+{$DOMAIN} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+	# Basic abuse protection for the public booking endpoints is handled in the API (rate limits);
+	# put Cloudflare or a WAF in front for large-scale traffic.
+	reverse_proxy web:3000
+}
